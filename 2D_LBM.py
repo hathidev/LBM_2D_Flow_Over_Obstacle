@@ -38,6 +38,9 @@ W=np.array([ 1/36, 1/9, 1/36, 1/9, 4/9, 1/9, 1/36, 1/9, 1/36])
 COL1 = np.array([0,1,2])  #Left wall of Lattice
 COL2 = np.array([3,4,5])  #Interior of Lattice
 COL3 = np.array([6,7,8])  #Right wall of Lattice
+ROW1 = np.array([0,3,6])  #Bottom wall of Lattice
+ROW2 = np.array([1,4,7])  #Interior of Lattice
+ROW3 = np.array([2,5,8])  #Top wall of Lattice
 
 #Initialization of Arrays
 FIN=np.zeros((9,NI,NJ))
@@ -118,6 +121,10 @@ def BC_INLET(): #Velocity at Inlet
     RHO[0,:] = 1./(1.-U[0,0,:]) * (np.sum(FIN[COL2,0,:],axis=0) + 2*np.sum(FIN[COL3,0,:],axis=0))
     CALC_EQUILIBRIUM()
     FIN[COL1,0,:] = FEQ[COL1,0,:] + FIN[[8,7,6],0,:] - FEQ[[8,7,6],0,:]
+   
+def BC_FREESLIP(): #Free-slip Boundary Condition at the top and bottom boundaries
+    FIN[ROW1,:,0]=FIN[[2,5,8],:,0]
+    FIN[ROW3,:,-1]=FIN[[0,3,6],:,-1]
 
 def BC_WALL(): #Bounce-back
     for k in range(9):
@@ -166,6 +173,7 @@ FIN=FEQ.copy()
 
 for t in range(NSTEPS+1):
     BC_OUTLET()
+    BC_FREESLIP()
     CALC_QUANTITIES()
     BC_INLET()
     COLLISION()
